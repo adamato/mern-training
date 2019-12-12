@@ -1,2 +1,5 @@
 .gitignore
 /node_modules
+/LabWork/react-es6-cop/node_modules
+/LabWork/react-hooks-app/node_modules
+/LabWork/react-router-app/node_modules
