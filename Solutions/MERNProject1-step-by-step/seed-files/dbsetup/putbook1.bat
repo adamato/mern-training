@@ -1,0 +1,1 @@
+curl -v -X PUT -H "Content-Type: application/json" -d @book1.json http://localhost:3000/books/123

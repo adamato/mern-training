@@ -1,0 +1,1035 @@
+/**** MEAN-REACT-REDUX Book Website Project 1.0 *****/
+
+// PREREQUISITES //
+This project is designed for developers with a background in the following:
+- Web Technologies: HTML/ CSS / JavaScript
+- Node.js / NPM (node package manager)
+- Installation of software using NPM 
+- MongoDB
+- HTTP communications protocol
+- RESTful web services 
+- React / JSX / Redux
+- Babel transpiler
+- Using command prompts
+
+The following software needs to be installed on the development machine:
+- node.js
+- mongodb
+- chrome browser
+- your choice of programming/text editor
+
+// Note: //
+If you followed the instructions and got the solution project up and running
+then you may be able to skip some of the directions below.
+
+// PROJECT ZIP FILE //
+Before starting this lab you should obtain a copy of the following zip file:
+	mean-react-redux-book-website-project.zip
+
+// GETTING STARTED //
+Create the directory: 
+	C:\LabWork
+
+Install the Create React Utility:
+    Navigate to C:\LabWork directory
+	Execute:
+	  npm install -g create-react-app
+
+Run the utility to create your project:
+	Navigate to C:\LabWork directory
+	Execute: 
+	  create-react-app redux-book-project
+	  cd redux-book-project
+	  npm start
+	Open url: http://localhost:3000 in browser
+
+Install npm-prop-types
+    Open a new command prompt
+	Navigate to C:\LabWork\redux-book-project directory
+	Execute:
+	  npm install prop-types --save --no-optional
+
+Install Redux packages:
+    From a command prompt
+	Navigate to C:\LabWork\book-project-redux directory
+	Execute:
+	  npm install redux --save --no-optional
+	  ( wait for install to finish )
+	  
+	Then Execute:
+	  npm install react-redux --save --no-optional
+ 	  ( wait for install to finish )
+
+
+/* SETTING UP THE DATABASE */
+Unzip the mongodb.zip from the \Software directory in the project zip file as instructed below: 
+	Unzip mongodb.zip into C:\LabWork to create C:\LabWork\mongodb
+
+Copy curl.exe from the \Software directory in the project zip file to the C:\LabWork directory:
+	
+Add the following at the start of the PATH environment variable:
+(if you need instructions google the term "windows adding to path")
+	C:\LabWork\mongodb\bin;C:\LabWork
+
+Open a NEW command prompt to any dir and test the path with these commands:
+	curl --version
+	mongod -- version (notice, no 'b' on the end, just 'mongod')
+	
+Create a directory for the db:
+	Open a command prompt
+	change dir to C:\LabWork
+	execute: mkdir data\db 
+
+Start Mongo database: 
+	From a command prompt...
+	change dir to C:\LabWork
+	execute: mongod --dbpath C:\LabWork\data --rest
+
+Start Mongo command line utility:
+	Open a Second command prompt:
+	change dir to C:\LabWork
+	execute: mongo
+	  This will start the mongo cmd line shell
+	  For cmd help in the shell execute: help
+	  To quit the shell execute: exit 
+
+Insert some data:	
+	Open the mongo cmd line shell as shown above:
+	Execute:
+	  use biblio_db
+	  db.books.save({ "isbn": "123", "title":"Dune","price":"18.01" })
+      db.books.save({ "isbn": "456", "title":"The Stranger on the Train","price":"4.49" })
+
+Check to make sure the data was inserted:
+	From mongo cmd line execute:
+	  db.books.find()
+
+NOTE: If for some reason you need to delete a record... (Don't execute the command. It's just for reference)
+	From mongo cmd line execute:
+	  db.books.remove( { "isbn": "123" } )
+		  
+Leave the mongod and mongo cmd line shell running.
+
+// INSTALL AND START THE REST SERVER //
+
+Copy the server directory from the C:\LabWork\LabFiles directory to 
+the project directory C:\LabWork\book-project-redux.
+
+Install required packages:
+	From the project directory execute the following:
+	  npm install express --save --no-optional
+	  npm install mongodb@2.2.33 --save --no-optional
+	  npm install body-parser --save --no-optional
+
+Add the following script to the package.json
+	"restapi": "node server/index.js",
+
+From the project directory execute:
+	npm run restapi
+
+Try the REST server:
+	Open the Chrome browser
+	Try the following URL
+		http://localhost:3000/books
+		Opening this URL submits a GET request to the REST server
+		You should see the two records you added to the db earlier
+		
+	Try the following URL
+		http://localhost:3000/books/123
+		Opening this URL submits a GET request to the REST server
+		You should see the one record that matches the isbn number
+		at the end of the URL
+
+Add a proxy so that API server can be accessed from application server:
+	Navigate to C:\LabWork\redux-book-project directory
+	Edit package.json 
+	Add the following line after the "name": "redux-book-project", line:
+	  "proxy": "http://localhost:3000/",
+
+	Restart the app server:
+	  Ctrl-C (twice) to close the command prompt where "npm run restapi" is running.
+	  In the command prompt, run the following command:
+	  npm start 
+
+Test the proxy:
+	Navigate to the project directory (C:\LabWork\redux-book-project):
+	Move to the "src" subdirectory.
+	Create a "components" directory (underneath \src)
+	Copy the ApiTest.js file:
+	  from: C:\LabWork\LabFiles\ApiTest.js
+	  to: C:\LabWork\redux-book-project\src\components
+
+	Edit C:\LabWork\redux-book-project\src\App.js
+	Add the following import:
+	  import ApiTest from './components/ApiTest';
+	
+	Then delete this import:
+	  import logo from './logo.svg';
+	
+	Replace the App class with the following:
+	
+		class App extends Component {
+
+		  render() {
+			return (
+			  <div className="App">
+				<h3>React-Redux Book List App</h3>
+				<ApiTest />
+			  </div>
+			);
+		  }
+		}
+
+	Refresh the app in the browser. 
+	Click the button labeled "Test Api"
+	The following record from the rest server should be displayed:
+	  {"isbn":"123","title":"Dune","price":18.01}
+	  
+	Inspect the ApiTest.js file. 
+	  It uses a react class to implement the ApiTest component
+      which handles its own state without redux	  
+      The components we create in the rest of the app 
+	  will use redux to manage state. 
+	  
+Update the title tag:
+	Open \public\index.html in your programming editor
+	Modify the title tag to appear as it does below:
+	    <title>React-Redux Book App</title>
+	
+Progress:
+	At this point we have completed the basic setup.
+	( see redux-book-project-stage01.zip for code implemented to this point )
+	In this next stage we add enough of a redux implementation
+	to display a hard coded list of books 
+
+
+// CODING THE INITIAL REDUX IMPLEMENTATION //
+The redux implementation requires that we:
+	Create a file to hold actions
+	Create an APPLY_BOOKS_UPDATE action
+	Create a root reducer
+	Create a books reducer	
+	Replace the application's entry point ( \src\index.js )
+	Move App.js to components subdirectory
+	Copy in the BookList component
+    Add the BookList component to the App component	
+
+	
+Create a file to hold actions:
+  Create the directory \src\actions
+  Create the file  \src\actions\index.js
+  
+Create an APPLY_BOOKS_UPDATE action:  
+  Add the following code to \src\actions\index.js and save:
+  
+	export const applyBooksUpdate = (books) => {
+	  return {
+		type: 'APPLY_BOOKS_UPDATE',
+		books
+	  }
+	}	
+	
+Create a root reducer:
+  Create the directory \src\reducers
+  Create the file  \src\reducers\index.js
+  Add the following contents to .\src\reducers\index.js and save:
+  
+	<<index.js>>
+	import { combineReducers } from 'redux'
+	import books from './books'
+
+	const bookApp = combineReducers({books:books})
+
+	export default bookApp
+	<<end>>  
+	
+Create a books reducer:
+  Create the file  .\src\reducers\books.js
+  Add the following contents to .\src\reducers\books.js and save:
+ 	<<books.js>>
+	const initial = [
+	  {isbn:"1328",title:"Moby Dick", price: 23 },
+	  {isbn:"1001",title:"The Odyssey", price: 18 },
+	  {isbn:"1013",title:"Great Expectations", price: 12 }
+	  ];
+
+	const books = (state = initial, action, data) => {
+	  switch (action.type) {
+
+		case 'APPLY_BOOKS_UPDATE':{  
+		  console.log("in reducer books.APPLY_BOOKS_UPDATE");
+		  let newstate = [...action.books]; 
+		  return newstate;
+		}
+
+		default:
+		  console.log("in reducer books.default");
+		  return state
+	  }
+	}
+
+	export default books
+	<<end>> 
+
+Replace the application's entry point ( \src\index.js )	
+  Edit .\src\index.js
+  Replace the entire contents of this file with the following:
+
+	<<index.js>>
+	import React from 'react'
+	import { render } from 'react-dom'
+	import { Provider } from 'react-redux'
+	import { createStore } from 'redux'
+	import bookApp from './reducers'
+	import App from './App'
+
+	let store = createStore( bookApp )
+
+	render(
+	  <Provider store={store}>
+		<App />
+	  </Provider>,
+	  document.getElementById('root')
+	);
+	<<end>>	
+	
+Move App.js to components subdirectory:
+  Move the following files to .\src\components\*
+	App.js
+	App.css
+
+  Edit \src\components\App.css
+    Replace its contents with the following css code,
+	then save the file.
+	
+	<< App.css >>
+	.selected {
+		font-weight: bold;
+		color: red;
+	}
+
+	h4{margin:0px;padding:0px;background-color:#ddd; text-align: center}
+	ul{list-style: none; padding:0px;}
+	.selected { font-weight: bold;}
+	#book-list{ border: solid 1px black;padding:5px;width:300px;margin-bottom:5px;}
+	#book-form{ border: solid 1px black;padding:5px;width:300px}	
+	<< end >>
+	
+  Edit \src\components\App.js,
+    Update the ApiTest import statement as shown below, 
+    Then save the file.
+      import ApiTest from './ApiTest';
+	
+  Edit \src\index.js, 
+    Update the App import statement as shown below,
+    Then save the file.
+      import App from './components/App'
+	
+  Delete the following files, we won't be using them:
+	.\src\App.test.js
+	.\src\logo.svg
+
+  Erase the contents of the following file and re-save it:
+	.\src\App.css  	
+
+Create the Book component
+  This component will display an individual book.
+  Create a file \src\components\Book.js, 
+  Add the following contents to Book.js,
+  Then save the file.
+  
+	<<Book.js>>
+	import React from 'react'
+	import PropTypes from 'prop-types'
+
+	const Book = ({ book }) => {
+	  return (
+		<li>
+			{book.isbn}, {book.title}, {book.price}
+		</li>
+	  );
+	}
+
+	Book.propTypes = {
+	  book: PropTypes.object.isRequired
+	}
+
+	export default Book
+	<<end>>
+	
+	
+Copy in the BookList component
+  This component will display a list of books.
+  Copy BookList.js 
+  From: C:\LabWork\LabFiles
+  To: {project dir}\src\components 
+ 
+  Take a look at how BookList.js is coded
+  Notice how the "connect" command is used to wrap BookList
+  and how mapStateToProps and mapDispatchToProps are used
+ 
+Add the BookList component to the App component
+  Edit \src\components\App.js
+  
+  Add the following import:
+    import BookList from './BookList';
+	
+  Add the following on the line after <ApiTest />
+    <BookList />
+
+  Replace the <ApiTest /> line with the following:
+    {/* <ApiTest /> */}
+	This comments out the ApiTest component,
+	but leaves it in place in case we need it later
+  
+  Comment out the ApiTest import
+    // import ApiTest from './ApiTest';
+
+  Save \src\components\App.js 	
+  
+	
+Progress:
+	In this stage we added a redux implementation to display a hard coded list of books.
+	- the app at this point should look like the image file C:\LabWork\LabFiles\stage02.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage02.zip for code implemented to this point
+
+    In the next section we will setup the app to 
+    get data from the mongo database.
+
+	
+// CONNECTING THE APP TO THE DATABASE //
+To connect the app to the database we need to:
+	Add code to make REST server calls
+    Add a "doneInit" flag to BookList
+	Call the rest api getBooks method from the BookList onInit method
+	
+Add code to make REST server calls:
+  Create the directory \src\rest
+  Create the file  \src\rest\index.js
+  Add the following contents to \src\rest\index.js and save:
+  
+	<<index.js>>
+	import { applyBooksUpdate } from '../actions'
+	 
+	class RestAPI {
+
+	  getBooks( dispatch ) {
+		let myHeaders = new Headers({ "Content-Type": "application/json" });
+		var myInit = { method: 'GET', headers: myHeaders, mode: 'cors' };
+		let promise = fetch("/books", myInit);
+		promise.then((response) => {
+		  return response.text();
+		}).then(function (text) {
+		  console.log('Request successful: ', text);
+		  let books = JSON.parse(text);
+		  dispatch(applyBooksUpdate(books));
+		});
+	  }
+	  
+	}
+
+	export default RestAPI;
+	<<end>>	
+
+Add a "doneInit" flag to booklist
+  Edit \src\components\BookList.js
+  add the following line before the "const BookList ..." line
+    var doneInit = false;
+  Save \src\components\BookList.js
+
+  
+Call the rest api getBooks method from the BookList onInit method	
+  Edit \src\components\BookList.js
+  add the following import after the other import lines:
+    import RestAPI from '../rest';
+
+  add the following line after the "var doneInit ..." line:
+    const restapi = new RestAPI();
+  
+  update the onInit method (in mapDispatchToProps) to appear as follows:
+    onInit: () => {
+      console.log('in BookList.onInit:');
+      if(!doneInit){
+        restapi.getBooks(dispatch);
+         doneInit = true;
+      }
+    }
+  
+  Save \src\components\BookList.js
+
+Progress:
+	In this stage we set up the app to get data from the mongo database.
+	- the app at this point should look like the image file C:\LabWork\LabFiles\stage03.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage03.zip for code implemented to this point
+
+    In the next section we will add the ability to select a book from the list
+
+
+// SELECTING A BOOK FROM THE LIST //
+To select a book from the list we need to:
+    Add a SELECT_BOOK action to set the selected book
+    Create an appState reducer to process the SELECT_BOOK action 
+    Add the appState reducer to the root reducer
+    Update the Book component with selectedIsbn 
+    Update BookList to handle book selection	
+    Refresh the browser and try selecting a book
+    
+Add a SELECT_BOOK action to set the selected book
+  Edit \src\actions\index.js
+  Add the following method:
+  
+	export const selectBook = (book) => {
+	  return {
+		type: 'SELECT_BOOK',
+		book
+	  }
+	}
+	
+  Save \src\actions\index.js
+  
+  
+Create an appState reducer to process the SELECT_BOOK action.
+  Create the file \src\reducers\appState.js
+  Add the following contents to the file,
+  Then save the file.
+  
+    << appState.js >>
+	const initial = {selectedIsbn:"9876", selectedBook:{} };
+
+	const appState = (state = initial, action, data) => {
+
+	  switch (action.type) {
+		case 'SELECT_BOOK': {
+		  let book_copy = Object.assign({}, action.book);
+		  return Object.assign({}, {selectedIsbn: action.book.isbn}, {selectedBook: book_copy });
+		}    
+
+		default:
+		  return state
+	  }
+	}
+
+	export default appState
+    << end >>
+
+
+Add the appState reducer to the root reducer
+  Edit \src\reducers\index.js
+  
+  Add the following import:
+    import appState from './appState'
+
+  Update the "
+	const bookApp = combineReducers({books:books})" line to match the following:
+    const bookApp = combineReducers({appState:appState,books:books})
+
+  Save \src\reducers\index.js
+
+
+Update the Book component with selectedIsbn
+  Edit \src\components\Book.js
+  
+  Update propTypes to match the following:
+	Book.propTypes = {
+		onClick: PropTypes.func.isRequired,
+		selectedIsbn: PropTypes.string,
+		book: PropTypes.object.isRequired
+	}
+
+  Update the parameters on the "const Book ..." line to include the new props (onClick and selectedIsbn):
+    const Book = ({ onClick, selectedIsbn, book }) => {
+	
+  Update the opening <li> tag to accept parameters
+	<li className={book.isbn === selectedIsbn ? "selected" : ""}
+		onClick={(e) => onClick(e, book.isbn)} >
+
+  Save \src\components\Book.js
+  
+  
+Update BookList to handle book selection
+    Edit \src\components\BookList.js
+	
+	Add an import for the selectBook action:
+	  import { selectBook } from '../actions'
+	
+	Add the following method after the onInit method in mapDispatchToProps,
+	( don't forget to add a comma between the two methods )
+		onBookClick: (book) => {
+		  console.log('in BookList.onBookClick:' + JSON.stringify(book));
+		  dispatch(selectBook(book));
+		}	
+	
+	Add "appState" and "onBookClick" to the "const BookList ... " line:
+	  const BookList = ({ books, onInit, appState, onBookClick }) => {
+	
+	
+	Update <Book ... > to include selectedIsbn and onBookClick
+		<Book
+			key = {book.isbn}  
+			book={book}
+			selectedIsbn={ appState.selectedIsbn }  
+			onClick={() => onBookClick(book)} 
+		/>
+	
+	Save \src\components\BookList.js
+
+Refresh the browser and try selecting a book
+  The selected book should appear in red 
+
+Progress:
+	In this stage we set added the ability to select a book from the list.
+	- with a book selected the app should look like C:\LabWork\LabFiles\stage04.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage04.zip for code implemented to this point
+
+    In the next section we will add a BookForm component to display the selected book
+
+
+// ADDING A BOOK FORM //
+To add a book form we need to:
+    Add an UPDATE_FORM_OBJECT action to update input fields on data entry
+	Add a formState reducer that can execute the UPDATE_FORM_OBJECT action
+	Add formState to the root reducer
+    Copy in the BookForm component
+    Add BookForm to the root component
+	Add code to update book in bookform with selected book
+	  Add an UPDATE_FORM_USAGE action to pass a book object to the BookForm
+	  Add a section in the "formState" reducer that executes the UPDATE_FORM_USAGE action:
+	  Update BookList so that selecting a book updates the BookForm
+	Test the changes
+
+
+Add an UPDATE_FORM_OBJECT action to update input fields on data entry	
+  Edit \src\actions\index.js
+  Add the following and save the file:
+
+	export const updateFormObject = (field_name, field_value) => {
+	  return {
+		type: 'UPDATE_FORM_OBJECT',
+		field_name:field_name,
+		field_value:field_value
+	  }
+	}  
+
+	
+Add a formState reducer that can execute the UPDATE_FORM_OBJECT action	
+  Create a file named \src\reducers\formState.js
+  Enter the following code and save the file:
+  
+    << formState.js >>
+    const initial = {usage: 'none', book:{isbn:"",title:"", price: "" }};
+    
+	const formState = (state = initial, action, data) => {
+
+	  switch (action.type) {
+		case 'UPDATE_FORM_OBJECT': {
+		  let field = {};
+		  field[action.field_name] = action.field_value;
+		  let book = Object.assign({}, state.book, field);
+		  const obj = Object.assign({}, state, {book:book} );
+		  return obj;
+		}    
+
+		default:
+		  return state
+	  }
+	}
+
+	export default formState
+    << end >>
+  
+
+Add formState to the root reducer
+  Edit \src\reducers\index.js
+   
+  Add an import for formState
+    import formState from './formState'
+	
+  Add formState to the "const bookApp" line:
+    const bookApp = combineReducers({formState:formState,appState:appState,books:books})
+
+  Save \src\reducers\index.js
+  
+Copy in the BookList component
+  This component will display a single book.
+  Copy BookForm.js 
+  From: C:\LabWork\LabFiles
+  To: {project dir}\src\components 
+ 
+  Take a look at how BookForm.js is coded
+  Notice how the "connect" command is used to wrap BookForm
+  and how mapStateToProps and mapDispatchToProps are used
+ 
+ 
+Add BookForm to the root (App) component 
+  Edit \src\components\App.js
+  
+  Add the following import:
+    import BookForm from './BookForm';
+	
+  Add the following on the line after <BookList />
+    <BookForm />
+
+  Save \src\components\App.js 
+	
+
+Add an UPDATE_FORM_USAGE action to pass a book object to the BookForm	
+  Edit \src\actions\index.js
+  Add the following and save the file:
+
+	// accepted values for usage: 'view', 'add', 'update'
+	export const updateFormUsage = (usage, book) => {
+	  return {
+		type: 'UPDATE_FORM_USAGE',
+		usage: usage,
+		book: book
+	  }
+	}  
+
+Add a section in the "formState" reducer that executes the UPDATE_FORM_USAGE action:
+  Edit \src\reducers\formState.js
+  Add the following case to the switch case,
+  add it after the first case and before the default case,
+  then save the file:
+
+    case 'UPDATE_FORM_USAGE': {
+      let usage = {usage: action.usage };
+      let new_book = {book:{isbn:"1000",title:"", price: "" }};
+
+      if(action.usage === 'view' || action.usage === 'edit'){
+        new_book = {book: Object.assign({}, action.book)};
+      }else{
+        let isbn = Math.floor(1000 * (1 + Math.random(Date.now()))).toString();
+        new_book = {book:{isbn: isbn,title:"", price: "0.00" }};
+      } 
+
+      return Object.assign({}, state, new_book, usage);
+    }  
+	
+Update BookList so that selecting a book updates the BookForm
+	Edit \src\components\BookList.js, 
+	update the actions import line to appear as shown below:
+		import { selectBook, updateFormUsage } from '../actions'
+	
+Update the onBookClick method in mapStateToProps to appear as shown:
+	onBookClick: (book) => {
+		console.log('in BookList.onBookClick:' + JSON.stringify(book));
+		dispatch(selectBook(book));
+		dispatch(updateFormUsage('view', book));
+	}
+	
+    Save \src\components\BookList.js
+
+Test the changes
+  Refresh the browser
+  Select a book in the BookList
+  The book should appear in the BookForm
+  
+  
+Progress:
+	In this stage we added a BookForm component to display the selected book.
+	- with a book selected the app should look like C:\LabWork\LabFiles\stage05.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage05.zip for code implemented to this point
+
+    In the next section we will add the ability to edit and save the selected book. 
+
+
+// ADD THE ABILITY TO EDIT AND SAVE THE SELECTED BOOK //
+To allow for editing and saving we need to:
+  Add a book update method to the RestApi class
+  Add an ADD_BOOK action 
+  Add a section in the books reducer to execute the ADD_BOOK action
+  Add an Edit button to the BookForm 
+  Add a Cancel button to the BookForm  
+  Add a Save button to the BookForm
+  Try it out
+  
+Add a book update method to the RestApi class
+  Edit \src\rest\index.js, 
+  Add the following method to the RestAPI class, 
+  then save the file.
+  
+	putBook( dispatch, book ) {
+		let url = "/books/" + book.isbn;
+		let myHeaders = new Headers({ "Content-Type": "application/json" });
+		let body = JSON.stringify(book);
+		var myInit = { 
+		  method: 'PUT',
+		  body: body, 
+		  headers: myHeaders, 
+		  mode: 'cors' 
+		};
+		let getbooks = this.getBooks;
+		let promise = fetch(url, myInit);
+		promise.then((response) => {
+		  return response.text();
+		}).then(function (text) {
+		  console.log('put request completed: ', text);
+		  getbooks(dispatch);
+		});
+	}  
+
+
+Add an ADD_BOOK action
+  Edit \src\actions\index.js,
+  add the following method,
+  then save the file.
+  
+	export const addBook = (book) => {
+	  return {
+		type: 'ADD_BOOK',
+		book
+	  }
+	}  
+	
+Add a section in the books reducer to execute the ADD_BOOK action
+  Edit \src\reducers\books.js,
+  add the following case to the switch statement, 
+  then save the file.
+  
+    case 'ADD_BOOK':  {  
+      console.log("in reducer books.ADD_BOOK"); 
+      let otherbooks = state.filter(
+        (book)=>{
+          if(book.isbn === action.book.isbn){
+            return false; 
+          }else{
+            return true;
+          }
+        }
+      );
+      let newstate = [...otherbooks,Object.assign({}, action.book)]
+      console.log("in reducer books.ADD_BOOK, newstate: " + JSON.stringify(newstate));
+      
+      return newstate;
+    }  
+
+Add the following import to the BookForm
+ Edit \src\components\BookForm.js
+ 	import { updateFormUsage } from '../actions'
+
+Add an Edit button to the BookForm
+  Edit \src\components\BookForm.js,
+  
+  add the following input button after the "</tbody></table>" line,
+	<input type={'button'} value="Edit" onClick={ (e)=>handleBookEditClick(e, book) } hidden={usage !=='view'} />
+	
+  add the following method to the mapDispatchToProps
+    handleBookEditClick: (event, book, usage) => {
+        console.log("in BookForm.handleBookEditClick");
+        dispatch( updateFormUsage('edit', book) );        
+    }
+
+  add "handleBookEditClick"	to the parameter list on the "const BookForm" line,
+	const BookForm = ({ book, usage, handleChange, handleBookEditClick }) => (
+	
+  Save \src\components\BookForm.js
+  
+  
+Add a Cancel button to the BookForm 
+  Edit \src\components\BookForm.js,
+  
+  add the following input button after the "</tbody></table>" line,
+	<input type={'button'} value="Cancel" onClick={ (e)=>handleEditCancelClick(e, book) } hidden={usage !== ('edit'||'update')} />
+	
+  add the following method to the mapDispatchToProps
+    handleEditCancelClick: (event, book, usage) => {
+        console.log("in BookForm.handleEditCancelClick");
+        dispatch( updateFormUsage('view') );        
+    }
+
+  add "handleEditCancelClick"	to the parameter list on the "const BookForm" line,
+	const BookForm = ({ book, usage, handleChange, handleBookEditClick, 
+                        handleEditCancelClick }) => (
+	
+  Save \src\components\BookForm.js 
+  
+
+Add a Save button to the BookForm
+  add the following import after the other imports
+	import { addBook, selectBook } from '../actions'  
+    import RestAPI from '../rest';
+  
+  add the following line before the "const BookForm" line,
+    const restapi = new RestAPI();
+  
+  add the following input button after the "</tbody></table>" line,
+	<input type={'button'} value="Save" onClick={ (e)=>handleBookSaveClick(e, book) } hidden={usage !== ('edit'||'update')} />
+	
+  add the following method to the mapDispatchToProps
+    handleBookSaveClick: (event, book, usage) => {
+        console.log("in BookForm.handleBookSaveClick");
+        dispatch(addBook(book));
+        if(usage === 'add'){
+            dispatch(selectBook(book));
+        }
+		dispatch(updateFormUsage('none'));
+        restapi.putBook(dispatch, book);
+    }
+
+  add "handleBookSaveClick"	to the parameter list on the "const BookForm" line,
+	const BookForm = ({ book, usage, handleChange, handleBookEditClick, 
+                        handleEditCancelClick, handleBookSaveClick }) => (
+	
+  Save \src\components\BookForm.js    
+	
+	
+Try it out
+  refresh the browser
+  click on a book 
+  the book should appear in BookForm along with an "Edit" button
+  click on "Edit"
+  "Save" and "Cancel" buttons should appear
+  The fields should now be editable
+  make changes to the title or price field
+  click save
+  the item is updated in the BookList as well as in the database
+
+
+Progress:
+	In this stage we added the ability to edit and save the selected book.
+	- when editing a book the app should look like C:\LabWork\LabFiles\stage6.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage06.zip for code implemented to this point
+
+    In the next section we will add a way to create and delte records 
+
+
+// ADD THE ABILITY TO CREATE AND DELETE RECORDS //
+To allow for editing and saving we need to:
+  Add an "New Book" button to the BookList 
+  Add a "deleteBook" method to the RestAPI class
+  Add a DELETE_BOOK action 
+  Add a reducer method to process the DELETE_BOOK action
+  Add an import for the "deleteBook" action method  
+  Add a "Delete" button to the BookForm
+  Add a "handleBookDeleteClick" method to mapDispatchToProps in BookForm
+  Add handleBookDeleteClick to the parameter list
+  
+  Try it out  
+    
+
+Add an "New Book" button to the BookList 
+  Edit \src\components\BookList.js,
+  
+  add the following after the "<ul />" line,
+	<input type={'button'} onClick={handleNewBookClick} value="New Book" />
+  
+  add the following method to mapDispatchToProps
+    handleNewBookClick: () => {
+      console.log('in BookList.handleNewBookClick:');
+      dispatch(updateFormUsage('add'));
+      dispatch(selectBook(-1));
+    }
+  
+  add handleNewBookClick to the parameters on the "const BookList ..." line,
+	const BookList = ({ books, appState, onInit, 
+                        onBookClick, handleNewBookClick }) => {  
+						
+Add a "deleteBook" method to the RestAPI class						
+  Edit \src\rest\index.js,
+  add the following method to the RestAPI class,
+  then save the file.
+  
+  deleteBook( dispatch, book ) {
+    let url = "/books/" + book.isbn;
+    let myHeaders = new Headers({ "Content-Type": "application/json" });
+    var myInit = { method: 'DELETE', headers: myHeaders, mode: 'cors' };
+    let getbooks = this.getBooks;
+    let promise = fetch(url, myInit);
+    promise.then((response) => {
+      return response.text();
+    }).then(function (text) {
+      console.log('delete request completed: ', text);
+      getbooks(dispatch);
+    });
+  }  
+  
+
+Add a DELETE_BOOK action
+  Edit \src\actions\index.js,
+  add the following method, 
+  then save the file.
+  
+	export const deleteBook = (book) => {
+	  return {
+		type: 'DELETE_BOOK',
+		book
+	  }
+	} 
+
+Add a reducer method to process the DELETE_BOOK action
+  Edit \src\reducers\books.js, 
+  add the following method to the switch case,
+  then save the file.
+
+    case 'DELETE_BOOK': {
+      console.log("in reducer books.DELETE_BOOK");
+      let otherbooks = state.filter(
+        (book)=>{
+          if(book.isbn === action.book.isbn){
+            return false; 
+          }else{
+            return true;
+          }
+        }
+      );      
+      let newstate = [...otherbooks]
+      console.log("in reducer books.DELETE_BOOK, newstate: " + JSON.stringify(newstate));
+      return newstate;
+    }  
+
+Add an import for the "deleteBook" action method
+  Edit \src\components\BookForm.js,
+  add the following import after the other imports, 
+  then save the file.
+	import { deleteBook } from '../actions'  
+
+	
+Add a "Delete" button to the BookForm
+  Edit \src\components\BookForm.js,
+  add the following after the "</tbody></table>" line, 
+  then save the file.
+	<input type={'button'} value="Delete" onClick={ (e)=>handleBookDeleteClick(e, book) } hidden={usage ==='none' || usage === 'view' || usage === 'add' } />
+	
+Add a "handleBookDeleteClick" method to mapDispatchToProps in BookForm
+  Edit \src\components\BookForm.js,
+  add the following method to mapDispatchToProps, 
+  then save the file.  
+  
+    handleBookDeleteClick: (event, book) => {
+        console.log("in BookForm.handleBookDeleteClick");
+        dispatch(deleteBook(book));
+        dispatch(updateFormUsage('none')); 
+        restapi.deleteBook(dispatch, book);       
+    }	
+	
+Add handleBookDeleteClick to the parameter list on the "const BookForm" line,
+  Edit \src\components\BookForm.js,
+  add the following method to mapDispatchToProps, 
+  then save the file. 
+  
+	const BookForm = ({ book, usage, handleChange, handleBookEditClick, 
+						handleEditCancelClick, handleBookSaveClick, 
+						handleBookDeleteClick }) => (  
+						
+Try it out
+  Make sure all files have been saved
+  Refresh the browser
+  Click the "New Book" button
+  Enter values for title and price
+  Click save
+  The book should appear in the Book List
+  
+  Click the book you just added in BookList
+  Click the Edit button
+  Click the Delete button
+  The book is removed from BookList and from the database
+  
+
+Progress:
+    The app is completed!
+	In this stage we added ways to create and delete books
+	- with a book in edit mode the app should look like C:\LabWork\LabFiles\stage07.jpg
+	- see C:\LabWork\LabFiles\redux-book-project-stage07.zip for code implemented to this point
+
+
+						

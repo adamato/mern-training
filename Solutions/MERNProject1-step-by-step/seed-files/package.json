@@ -1,0 +1,26 @@
+{
+  "name": "mern-project1-step-by-step",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.14.0",
+    "mongodb": "^2.0.43",
+    "express": "^4.13.3",
+    "prop-types": "^15.6.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1"
+  },
+  "scripts": {
+    "server": "node server/index.js",
+    "babel": "./node_modules/.bin/babel src --out-dir dist",
+    "babelw": "./node_modules/.bin/babel src --watch --out-dir dist"
+  },
+  "author": "",
+  "license": "ISC"
+}

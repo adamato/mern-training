@@ -1,0 +1,77 @@
+>>> MERN Project2 - React/Redux - Step By Step <<<
+/* Solution Setup*/
+
+Prerequisites:
+- you must have node.js( v6 or greater ) loaded on your PC in order to run the solution
+- you should have the chrome browser loaded on your PC
+
+To get the solution running you need to:
+- create a directory for the solution (i.e. C:\LabWork\MERNProject2-sbs-solution)
+- unzip the contents of solution zip file into the project directory you just created. Use a solution zip from the "stage-soltions" directory. State 7 is the fully completed application.
+- open a command prompt and navigate to the project directory 
+- execute: npm install (this will take approx. 5 min to run)
+- follow the section below on "setting up the database" 
+- follow the section below "start and test server" 
+- open the app in chrome: http://localhost:3000 
+
+/* SETTING UP THE DATABASE */
+The mongodb software should be available in the C:\Software\mongodb directory
+
+Open a command prompt
+navigate to: C:\Software\mongodb\bin
+execute: mongod --rest
+
+Open a Second command prompt:
+navigate to: C:\Software\mongodb\bin
+execute: mongo
+    This will start the mongo cmd line shell
+    For cmd help in the shell execute: help
+    To quit the shell execute: exit 
+
+From within the mongo shell run these commands:
+    use biblio_db
+    execute: db.books.save({ "isbn": "123", "title":"Dune","price":18.01 })
+    execute: db.books.save({ "isbn": "456", "title":"The Stranger on the Train","price":4.49 })
+	
+Use this command to check that the data was inserted:
+    execute: db.books.find()
+	
+Leave the mongod and mongo cmd line shell running
+
+/* Start and Test the REST Server //	
+Start the REST server
+	Open a command prompt.
+	Navigate to the project's root directory:
+	execute: npm run restapi
+
+Test the REST server:
+	Open the Chrome browser
+	Try the following URL
+		http://localhost:4000/books
+		Opening this URL submits a GET request to the REST server
+		You should see the two records you added to the db earlier
+		
+	Try the following URL
+		http://localhost:4000/books/123
+		Opening this URL submits a GET request to the REST server
+		You should see the one record that matches the isbn number at the end of the URL
+
+/* Start the React application server and test */
+Start the server
+	Open a command prompt.
+	Navigate to the project's root directory:
+	execute: npm run start
+
+Test the server
+	Open the Chrome browser
+	Open the following URL
+		http://localhost:3000/
+		You should see a page with the title "React Book List App"
+		The page should also display sections for "Book List" and "Book Form"
+		
+Test the application		
+    Try modifying a book
+    Try adding a few new books
+    Try deleting a book
+    	
+	

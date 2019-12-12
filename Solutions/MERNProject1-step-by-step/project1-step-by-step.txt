@@ -1,0 +1,771 @@
+/**** MERN Book Website Project1 v2.0 *****/
+/* Step-By-Step Instructions */
+
+// PREREQUISITES //
+These instructions are designed for beginning developers with a basic background in the following:
+- Web Technologies: HTML/ CSS / JavaScript
+- Node.js / NPM (node package manager)
+- Installation of software using NPM 
+- MongoDB
+- HTTP communications protocol
+- RESTful web services 
+- React / JSX
+- Babel transpiler
+- Using command prompts
+
+The following software needs to be installed on the development machine:
+- node.js
+- mongodb
+- chrome browser
+- your choice of programming/text editor
+
+// GETTING STARTED //
+Create the directory: 
+	C:\LabWork 	 	
+	
+Create the following directory.
+We will refer to this in the instructions as the project-root directory.
+	C:\LabWork\mern-project1-sbs	
+
+// SETTING UP THE DATABASE //
+The mongodb software should be available in the C:\Software\mongodb directory
+
+Open a command prompt
+navigate to: C:\Software\mongodb\bin
+execute: mongod --rest
+
+Open a Second command prompt:
+navigate to: C:\Software\mongodb\bin
+execute: mongo
+    This will start the mongo cmd line shell
+    For cmd help in the shell execute: help
+    To quit the shell execute: exit 
+
+From within the mongo shell run these commands:
+    use biblio_db
+    execute: db.books.save({ "isbn": "123", "title":"Dune","price":18.01 })
+    execute: db.books.save({ "isbn": "456", "title":"The Stranger on the Train","price":4.49 })
+	
+Use this command to check that the data was inserted:
+    execute: db.books.find()
+	
+Leave the mongod and mongo cmd line shell running
+
+
+// SETTING UP THE DEVELOPMENT ENVIRONMENT //
+Copy project seed files:
+	From: C:\LabFiles\MERNProject1-step-by-step\seed-files\*
+	To: C:\LabWork\mern-project1-sbs\*
+	We will be building on these files throughout the project
+	
+Open a command prompt
+	Change directory to C:\LabWork\mern-project1-sbs\
+	execute: npm install
+		This will take some time (~5 minutes ) to complete.
+		When complete you should have a node_modules dir inside the project root.
+		The size of node_modules should be approx. 126 mb, 87k files, 3750 folders
+
+Start up the Babel transpiler:
+	Open a command prompt.
+	Navigate to the project-root dir (C:\LabWork\mern-project1-sbs\):
+	execute: npm run babelw
+	
+Start up the REST server
+	Open a command prompt.
+	Navigate to the project-root dir (C:\LabWork\mern-project1-sbs\):
+	execute: npm run server
+	
+Try the application:
+	Open the Chrome browser
+	Open the following URL
+		http://localhost:3000/
+		You should see a page with the title "React Book List App"
+		The page should also display empty sections for "Book List" and "Book Form"
+		
+Try the REST server:
+	Open the Chrome browser
+	Try the following URL
+		http://localhost:3000/books
+		Opening this URL submits a GET request to the REST server
+		You should see the two records you added to the db earlier
+		
+	Try the following URL
+		http://localhost:3000/books/123
+		Opening this URL submits a GET request to the REST server
+		You should see the one record that matches the isbn at the end of the URL
+
+// REVIEW THE SEED APPLICATION //
+You should check out some of the following files to become more familiar with the app.
+
+What the seed application includes:
+- Mongo DB database application
+	- db: biblio_db
+	- collection: books
+	
+- Node.js based Server application that:
+	1) Serves static files (http://localhost:3000)
+	2) Provides a RESTful web service interface to the mongodb database
+		The server currently supports only two URL patterns:
+			\books
+			\books\:isbn
+	The server application is made of two files:
+		1) {project-root}\server\data_access-mongo.js
+		2) {project-root}\server\index.js
+	The command to start up the server is:
+		npm run server
+	
+- A REACT based web application that consists of these files:
+	1) {project-root}\index.html
+	2) {project-root}\src\app.js
+	
+- The babel compiler
+	This app uses babel to compile JSX statements embedded in JavaScript code
+	The command to start babel is:
+		npm run babelw
+	The babel compiler:
+		takes files from the .\src directory
+		compiles them and save them to the .\dist directory
+		
+// WHAT THE SEED APP DOES //
+Not much... Yet.
+It shows a static web page that uses a minimal amount of REACT to display its title. 
+
+// WHAT WE WANT THE APP TO DO (REQUIREMENTS)// 
+Web App Requirements:
+- Display books from the mongo database
+- Allow users to select a book
+- The selected book should be visually highlighted
+- Selected books can be edited and saved
+- Selected books can be deleted
+- Users can add new book records
+- All data is retrieved/persisted through the use of a RESTful web service
+
+RESTful Web Service Requirements:
+- Supports GET requests for the list of books (already completed in seed project)
+- Supports GET request for an individual book based on isbn number (already completed in seed project)
+- Supports a PUT request for saving new records and updating existing records
+- Support DELETE requests for deleting individual records based on isbn number
+
+We'll deal with the requirements one at a time starting with the RESTful web service.
+
+// ADD SUPPORT FOR PUT REQUESTS //
+Add support for put requests to the server app:
+Open the following server app in a text editor:
+	{project-root}\server\index.js
+
+The put request you create:
+	should be called off of the 'app' object (ie. app.put(url, req-res-callback ))
+	calls the updateBook(isbn, book, callback) function on the dao object to save data to the mongodb
+    (the dao object represents code in the data_access-mongo.js file)
+    should check the req (request) for required parameters (isbn & body)
+    	
+You should try creating the put request yourself first then check it against the solution listed here. 
+It's ok if your version varies as long as it works. 
+
+Put request solution:
+//update book
+app.put("/books/:isbn", (req, res) => {
+  if (req.params.isbn === undefined || req.body === undefined) {
+    res.statusCode = 500;
+    res.end();
+    return;
+  }
+  dao.updateBook(req.params.isbn, req.body, (err) => {
+    if (err !== null) {
+      res.statusCode = 500;
+    }
+    res.end();
+  });
+});
+
+Once your put request is coded:
+	Save the server file (index.js).
+	If the server is currently running, shut it down using Ctrl-C
+	Restart the server by executing: npm run server
+
+Test the put command:
+	Open a command prompt and navigate to the following directory:
+		{project-root}\dbsetup
+		
+	Execute the following curl command:
+		curl -v -X PUT -H "Content-Type: application/json" -d @book3.json http://localhost:3000/books/789 
+		This should add a new record to the db
+		
+	Check that the record was added by executing this curl command:
+		curl http://localhost:3000/books
+		This will output a list of books in json format
+		The book you just added should appear in the list.
+		
+	Try updating an existing record using the following curl command:
+		curl -v -X PUT -H "Content-Type: application/json" -d @book3b.json http://localhost:3000/books/789
+		This should update the price for "War and Peace" from 19.98 to 24.95
+		List the book records using the command above to confirm.
+		
+		
+// ADD SUPPORT FOR DELETE REQUESTS //		
+Add support for DELETE requests to the server app:
+Open the following server app in a text editor:
+	{project-root}\server\index.js
+
+The delete request you create:
+	should be called off of the 'app' object (ie. app.delete(url, req-res-callback ))
+	calls the deleteBook(isbn, callback) function on the dao object to delete records from mongodb
+    (the dao object represents code in the data_access-mongo.js file)
+    	
+You should try creating the delete request yourself first then check it against the solution listed here. 
+It's ok if your version varies as long as it works. 
+
+Delete request solution:		
+app.delete("/books/:isbn", (req, res) => {
+  dao.deleteBook(req.params.isbn, (err) => {
+    if (err !== null) {
+      res.statusCode = 404;
+    }
+    res.end();
+  });
+});		
+
+Once your delete request is coded:
+	Save the server file (index.js).
+	If the server is currently running, shut it down using Ctrl-C
+	Restart the server by executing: npm run server
+	
+Test the put command:
+	Open a command prompt and navigate to the following directory:
+		{project-root}\dbsetup
+		
+	Execute the following curl command:
+		curl -v -X DELETE http://localhost:3000/books/789 
+		This should delete a record from the db
+		
+	Check that the record was deleted by executing this curl command:
+		curl http://localhost:3000/books
+		This will output a list of books in json format
+		The book with isbn=789 should no longer appear in the list.
+			
+// PROGRESS REPORT //
+At this point the RESTful web service had been completed and tested
+Now we will start addressing web app requirements.
+Remaining requirements are listed here:
+	Display books from the mongo database
+	Allow users to select a book
+	The selected book should be visually highlighted
+	Selected books can be edited and saved
+	Selected books can be deleted
+	Users can add new book records
+
+// ADD SUPPORT FOR: DISPLAY BOOKS FROM MONGO DATABASE - Part 1 //
+In this part we will create a react component that displays hard coded book data.
+Open the following files in a text editor:
+	{project-root}\index.html
+	{project-root}\src\app.js
+		
+In the index.html file find the following line:
+	<div id=book-list ><h4>Book List <h4></div>
+	This div is where we want to place the book list
+	Note its id=book-list
+	
+Add the following codeIn to the app.js file:
+	var books = [{isbn:'000', title:'example title', price:0.00 }];
+	function renderBookList(list){
+		// list items
+		// list component
+		// render component
+	}
+	// call renderBookList()
+	renderBookList(books);
+	
+Inside the renderBookList method add the following right after "// list items":
+    const listItems = list.map((item, index) =>
+        <li key={index}>
+            {item.isbn}, {item.title}, {item.price}
+        </li>
+    );
+	The above code uses JSX to create list items based on an input array.
+		
+Inside the renderBookList method add the following right after "// list component":
+    const listComponent = 
+        <div>
+            <h4>Book List</h4>
+            <ul>{listItems}</ul>
+        </div>
+	The above code uses JSX to add some HTML elements around the list items.
+
+Inside the renderBookList method add the following right after "// render component":
+	ReactDOM.render( listComponent, document.getElementById('book-list'));
+	The above code calls upon react to render the component at a given location in the index.html file.
+
+Save the app.js file.
+	
+At this point the app should display the data hard coded in the "books" array.
+Test it by opening the following url in the Chrome browser:
+	http://localhost:3000/
+	The Book List section of the page should now display: 000, example title, 0
+
+If the example record is not displaying:
+	Check the babel command prompt for any errors. 
+	If babel was not running then you will need to run it using the command: npm run babelw
+    Check that the server app is running 
+	Open Chrome's developer tools aned check the JavaScript console for errors.
+
+	
+// ADD SUPPORT FOR: DISPLAY BOOKS FROM MONGO DATABASE - Part 2 //
+In this part we will add code to retrieve the book list from mongo and display it.
+
+Open the following file in a text editor:
+	{project-root}\src\app.js
+
+Replace the following lines in the file:
+	// call renderBookList()
+	renderBookList(books);
+	
+With these lines:
+	function updateBookList() {
+		// add fetch here
+	};
+
+	// call updateBookList() to initialize list
+	updateBookList();
+	
+Inside the updateBookList function add the following right after "// add fetch here":
+    fetch('./books', { mode: 'cors' })
+        .then(function (response) {
+            return response.text();
+        })
+        .then(function (text) {
+            console.log('Request successful', text);
+            books = JSON.parse(text);
+            renderBookList(books);
+        })
+        .catch(function (error) {
+            console.log('Request failed', error)
+        });
+	The code above uses the JavaScript fetch() command to call the RESTful web service 
+	Once the data is returned it is converted to object form using JSON.parse() 
+	The resulting object is passed to the renderBookList() method
+
+	
+function updateBookList() {
+    fetch('./books', { mode: 'cors' })
+        .then(function (response) {
+            return response.text();
+        })
+        .then(function (text) {
+            console.log('Request successful', text);
+            books = JSON.parse(text);
+            renderBookList(books);
+        })
+        .catch(function (error) {
+            console.log('Request failed', error)
+        });
+}
+
+Save the app.js file
+
+At this point the app should display live data from the mongo db
+Test it by opening the following url in the Chrome browser:
+	http://localhost:3000/
+	The Book List section of the page should now display two books
+    The displayed books should have isbn numbers 123 and 456.
+
+If the live records are not displaying:
+	Check the babel command prompt for any errors
+    Check that the server app is running 
+	Check that the mongoDb database is running
+	Open Chrome's developer tools aned check the JavaScript console for errors.	
+
+// PROGRESS REPORT //
+At this point we have completed:
+	The RESTful web service
+	Display books from the mongo database
+
+Remaining requirements are listed here:
+	Allow users to select a book
+	The selected book should be visually highlighted
+	Selected books can be edited and saved
+	Selected books can be deleted
+	Users can add new book records
+
+		
+// ADD SUPPORT FOR: ALLOW USERS TO SELECT-HIGHLIGHT A BOOK //	
+Open the following file in a text editor:
+	{project-root}\src\app.js
+
+Add the following code right above the line "// call updateBookList() to initialize list"
+	// code to handle selected book
+    function handleListClick(event, isbn){
+		event.preventDefault();
+        setSelectedBook(isbn);
+        alert(" item clicked: " + isbn);
+    }
+    var selectedIsbn = "";
+    var book = {isbn:'000', title:'example title', price:0.00 };
+    
+    function setSelectedBook(isbn){
+        selectedIsbn = isbn;
+        book = getBookByIsbn(isbn);
+        renderBookList(books);
+        //renderBookForm(book);     
+    }
+	
+In the renderBookList method, in the "//list items" section, find the following code:
+    // list items
+    const listItems = list.map((item, index) =>
+        <li key={index}>
+            {item.isbn}, {item.title}, {item.price}
+        </li>
+    );
+
+Add an onClick attribute that calls the handleListClick method. 
+When you are finished the code should look like this:
+    // list items
+    const listItems = list.map((item, index) =>
+        <li key={index} 
+		  onClick={(e) => handleListClick(e, item.isbn)}
+		>
+            {item.isbn}, {item.title}, {item.price}
+        </li>
+    );
+
+Add the following code in app.js right before the line, "// code to handle selected book"
+    // utility function to retrieve book from array
+    function getBookByIsbn(isbn){
+        for(let book of books){
+            if(book.isbn === isbn){
+                return book;
+            }
+        }
+    }	
+Save the app.js file
+
+Test the book selection code:
+	Try running the app, the list should come up as before.
+	Try clicking on one of the items in the list
+		An alert box should appear saying: "item clicked" and the isbn number of the selected item
+		
+Books in the list should be highlighted somehow once they've been clicked.
+	Take a look at the <style> section in index.html.
+	Notice that we have a style for class=selected, 
+		.selected { font-weight: bold;}
+	Lets use that style to set the selected item in the list to bold
+
+In the renderBookList method, in the "//list items" section, find the following code:
+    // list items
+    const listItems = list.map((item, index) =>
+        <li key={index} 
+		  onClick={(e) => handleListClick(e, item.isbn)}
+		>
+            {item.isbn}, {item.title}, {item.price}
+        </li>
+    );
+
+Add a className attribute that sets the class to "selected" when the isbn matches selectedIsbn:
+The resulting code should look like this:
+    // list items
+    const listItems = list.map((item, index) =>
+        <li key={index} 
+          className={item.isbn === selectedIsbn ? "selected" : ""}
+		  onClick={(e) => handleListClick(e, item.isbn)}
+		>
+            {item.isbn}, {item.title}, {item.price}
+        </li>
+    );
+	
+Save the app.js file
+
+Test the book selection code:
+	Try running the app, the list should come up as before.
+	Try clicking on one of the items in the list
+		An alert should come up mentioning the selected item
+		When the alert is dismissed the selected item should be displayed in bold type.
+
+Now we can see which item was selected just by looking at the list.
+	We no longer need the alert.
+	Go ahead and comment out the alert line so that it appears like this:
+		// alert(" item clicked: " + isbn);
+		
+Save the app.js file
+
+// ADD FORM THAT DISPLAYS THE SELECTED BOOK //
+This is not listed in the requirements but is required to support some of the remaining requirements.
+Open the following file in a text editor:
+	{project-root}\src\app.js
+	
+Add the following code right before the line "// code to handle selected book"
+    // render Book Form
+    
+    function renderBookForm(book) {
+        const bookForm = 
+            <div>
+                <h4>Book Form</h4>
+                <form >
+                    <table><tbody>
+                        <tr>
+                            <td>Isbn:</td>
+                            <td><input type={'text'} name={'isbn'} value={book.isbn} /></td>
+                        </tr>
+                        <tr>
+                            <td>Title:</td>
+                            <td><input type={'text'} name={'title'} value={book.title} /></td>
+                        </tr>
+                        <tr>
+                            <td>Price:</td>
+                            <td><input type={'text'} name={'price'} value={book.price} /></td>
+                        </tr>
+                    </tbody></table>
+                </form>
+            </div>
+
+        ReactDOM.render(bookForm, document.getElementById('book-form'));
+    }
+	The above code creates and renders a react component at the location in index.html defined by the 'book-form' id.
+	
+Find the following code in app.js
+    function setSelectedBook(isbn){
+        selectedIsbn = isbn;
+        renderBookList(books);
+        // renderBookForm(book);    
+    }
+
+Uncomment the line that calls the renderBookForm() method so that the code appears like this:
+    function setSelectedBook(isbn){
+        selectedIsbn = isbn;
+        renderBookList(books);
+        renderBookForm(book);    
+    }
+
+Save the app.js file
+
+Test the new code:
+	Open the app in chrome.
+	Try clicking on one of the items in the list
+		In addition to an item being hightlighted 
+		you should also see the selected item displayed in the "Book Form" page section
+	Note that the item shown in "Book Form" is just a hardcoded book and not the book you selected.
+	If you have the JavaScript console open you may also notice a "Failed form propType" exception.
+    We will fix that now.
+
+Add the following attribute to each input field in the renderBookForm() function:
+	onChange={handleChange} 
+	
+	For example you would change this code:
+		<input type={'text'} name={'isbn'} value={book.isbn} />
+		
+	To look like this:
+		<input type={'text'} name={'isbn'} onChange={handleChange} value={book.isbn} />
+	
+	Do the same for all three input fields.
+	
+	This is a React requirement.
+	It makes sure that the underlying object gets updated when the input field value changes.
+	
+Now we need to add the handleChange function referred to in the proceeding code.
+Add the following code in app.js right before the line, "// utility function to retrieve book from array"
+    // update book object when input field changes
+    function handleChange(e){
+		if(!book){ book = getBookByIsbn(selectedIsbn);}
+        book[e.currentTarget.name] = e.currentTarget.value;
+        renderBookForm(book);
+    }	
+	
+Save the app.js file
+
+Retest the application
+	When you click on a book its details should show in the form
+	There should be no longer be any exceptions in the JavaScript console.
+
+	
+// PROGRESS REPORT //
+At this point we have completed:
+	The RESTful web service
+	Display books from the mongo database
+	Allow users to select a book
+	The selected book should be visually highlighted
+	
+Remaining requirements are listed here:
+	Selected books can be edited and saved
+	Selected books can be deleted
+	Users can add new book records
+
+
+// ADD SUPPORT FOR: SELECTED BOOKS CAN BE EDITED AND SAVED //
+The way the book form was created it already includes input fields that can be edited by the enduser.
+In order to save the edits that users make we need to add:
+	A "Save" button on the "Book Form"
+	A "Save" button handler function that submits the record to the web service via a PUT request.
+
+Open the following file in a text editor:
+	{project-root}\src\app.js
+	
+Lets create the handler function first.
+Add the following code just before the line, "// update book object when input field changes"
+    // handle save button click
+    function handleBookSaveClick() {
+
+        if (book != null && book.isbn != null && book.isbn.length > 0) {
+            // send post request to update book
+            let url = './books/' + book.isbn;
+            let bodystring = JSON.stringify(book);
+
+            // add fetch call for PUT here
+
+        } else {
+            alert("isbn cannot be null for Save or Update!");
+        }
+    }
+	The code above checks for a valid isbn number which is required to do the update.
+	It will alert the user if case of an invalid isbn value.
+	With a valid isbn it creates a url for the put request.
+	Then it places the edited book data into string format, also for the put request.
+	
+We still need to add code to the above function to make the PUT call.
+Add the following code into the handleBookSaveClick function right after the line, "// add fetch call for PUT here":
+
+	fetch(url, { method: 'PUT', headers: { "Content-Type": "application/json" }, body: bodystring }) 
+		.then(function (data) {
+			// reload updated books list from service
+			updateBookList();		
+			// if new record was saved make it the selected book
+			if (selectedIsbn === null || ( selectedIsbn.length === 0 | selectedIsbn != book.isbn ) ) {
+				setSelectedBook(book.isbn);
+			}
+		})
+		.catch(function (error) {
+			console.log('Request failed', error);
+		});
+
+Now lets add the save button.
+Add a button input element into the renderBookForm method after the </table> tag and before the </form> tag.
+When you're done that section of HTML should look like this:
+		...
+        </tbody></table> 
+        <input type={'button'} value="Save" onClick={ handleBookSaveClick } /> 
+        </form>		
+		...
+ 
+Save the app.js file
+
+Test the new code:
+	Open the app in chrome.
+	Click on an item in the list to load it into the book-form.
+	Make a change to the title or price field and click the "Save" button.
+	The change you made should appear on the item in the book-list.
+	
+What happens if I change the isbn number?
+	Lets try it.
+	Click on an item in the list to load it into the book-form.
+	Change the isbn number for the item and click the "Save" button.
+	You should see a new item in the book-list with the modified isbn number.
+	
+// ADD SUPPORT FOR: USERS CAN ADD NEW BOOKS //
+To allow users to add new books we need to:
+	Add a "New Books" button
+	Add a handler method for the button that displays an empty book-form that can then be filled in by the user.
+	After the user fills in the book-form fields they will click the existing "Save" button to insert the record.
+	
+Open the following file in a text editor:
+	{project-root}\src\app.js
+
+Add the following code near the end of app.js right before the line: "// call updateBookList() to initialize list":
+    // "New Book" button handler    
+    function handleNewBookClick(){
+        selectedIsbn = "";
+        book = {isbn:"",title:"",price:""};
+        renderBookList(books); // update to remove highlight if any
+        renderBookForm(book);  // update form
+    }
+	
+Add a "New Book" button input element into the renderBookList method after the "</ul>" tag and before the "</div> tag.
+When you're done that section of HTML should look like this:
+    const listComponent = 
+    <div>
+        <h4>Book List</h4>
+        <ul>{listItems}</ul>
+        <input type={'button'} onClick={handleNewBookClick} value="New Book" />
+    </div>	
+		
+Save the app.js file
+
+Test the new code:
+	Open the app in chrome.
+	Click on the "New Book" button to open an empty book-form.
+	Enter some data into the form:
+		isbn: 001
+		title: Crime and Punishment
+		price: 13.50
+	Click on the "Save" button.
+	The new book will appear in bold in the book-list
+		
+
+// PROGRESS REPORT //
+At this point we have completed:
+	The RESTful web service
+	Display books from the mongo database
+	Allow users to select a book
+	The selected book should be visually highlighted
+	Selected books can be edited and saved
+	Users can add new book records
+	
+Remaining requirements are listed here:
+	Selected books can be deleted
+	
+		
+// ADD SUPPORT FOR: BOOKS CAN BE DELETED //
+To allow books to be deleted we need to:
+	Add a "Delete" button to the book-form
+	Add a handler method for the delete button
+	
+Lets add the handler method first.
+It will need to make a DELETE request of the web service in order to delete the record.
+Add the following code near the end of app.js right before the line: "// call updateBookList() to initialize list": 
+    // handle delete button click
+    function handleBookDeleteClick(e) {
+        if (book != null && book.isbn != null && book.isbn.length > 0) {
+            // send post request to delete book
+            let url = './books/' + book.isbn;
+            fetch(url, { method: 'DELETE' })
+                .then(function (data) {
+                    console.log('Request succeeded with response: ', data);
+                    // reload updated books list from service
+                    updateBookList();
+                    // reset selected book and re-render book form
+                    book = { isbn: "", title: "", price: "" };
+                    selectedIsbn = "";
+                    renderBookForm(book);
+                })
+                .catch(function (error) {
+                    console.log('Request failed', error);
+                });
+        } else {
+            alert("isbn cannot be null for Delete!");
+        }
+    }
+
+Add a "Delete" button. 
+Add a button input element into the renderBookForm method after the "Save" button tag and before the </form> tag.
+When you're done that section of HTML should look like this:
+		...
+        </tbody></table> 
+        <input type={'button'} value="Save" onClick={ handleBookSaveClick } />
+		<input type={'button'} value="Delete" onClick={ handleBookDeleteClick } />		
+        </form>		
+		...
+		
+Save the app.js file
+
+Test the new code:
+	Open the app in chrome.
+	Click on an item in the book-list that you want to delete.
+	The book-form will show the item.
+	Click on the "Delete" button in the book-form.
+	The item will be removed from the list and the book form will be reset
+	
+// PROGRESS REPORT - COMPLETED!!!! //
+All requirements have now been completed:
+	The RESTful web service
+	Display books from the mongo database
+	Allow users to select a book
+	The selected book should be visually highlighted
+	Selected books can be edited and saved
+	Users can add new book records
+	Selected books can be deleted	

@@ -1,0 +1,5 @@
+h4{margin:0px;padding:0px;background-color:#ddd; text-align: center}
+ul{list-style: none; padding:0px;}
+.selected { font-weight: bold; color: red;}
+#book-list{ border: solid 1px black;padding:5px;width:300px;margin-bottom:5px;}
+#book-form{ border: solid 1px black;padding:5px;width:300px}
