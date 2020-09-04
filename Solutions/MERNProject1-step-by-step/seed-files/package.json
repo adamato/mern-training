@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.14.0",
-    "mongodb": "^2.0.43",
+    "mongodb": "^3.6.1",
     "express": "^4.13.3",
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
